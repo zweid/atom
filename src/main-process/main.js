@@ -19,6 +19,8 @@ const dedent = require('dedent')
 const startCrashReporter = require('../crash-reporter-start')
 const previousConsoleLog = console.log
 console.log = require('nslog')
+const defaultAtomHome = path.join(app.getPath('home'), '.atom')
+const defaultDevResourcePath = path.join(app.getPath('home'), 'github', 'atom')
 
 function start () {
   const args = parseCommandLine()
@@ -95,7 +97,7 @@ function setupAtomHome ({setPortable}) {
     return
   }
 
-  let atomHome = path.join(app.getPath('home'), '.atom')
+  let atomHome = defaultAtomHome
   const AtomPortable = require('./atom-portable')
 
   if (setPortable && !AtomPortable.isPortableInstall(process.platform, process.env.ATOM_HOME, atomHome)) {
@@ -148,10 +150,10 @@ function parseCommandLine () {
     Environment Variables:
 
       ATOM_DEV_RESOURCE_PATH  The path from which Atom loads source code in dev mode.
-                              Defaults to \`~/github/atom\`.
+                              Defaults to \`${defaultDevResourcePath}\`
 
       ATOM_HOME               The root path for all configuration files and folders.
-                              Defaults to \`~/.atom\`.`
+                              Defaults to \`${defaultAtomHome}\``
   )
   // Deprecated 1.0 API preview flag
   options.alias('1', 'one').boolean('1').describe('1', 'This option is no longer supported.')
@@ -223,7 +225,7 @@ function parseCommandLine () {
   const urlsToOpen = []
   const setPortable = args.portable
   let devMode = args['dev']
-  let devResourcePath = process.env.ATOM_DEV_RESOURCE_PATH || path.join(app.getPath('home'), 'github', 'atom')
+  let devResourcePath = process.env.ATOM_DEV_RESOURCE_PATH || defaultDevResourcePath
   let resourcePath = null
 
   if (args['resource-path']) {
