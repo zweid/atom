@@ -109,13 +109,13 @@ class AtomApplication
       @loadState(options) or @openPath(options)
 
   openWithOptions: ({initialPaths, pathsToOpen, executedFrom, urlsToOpen, test, pidToKillWhenClosed, devMode, safeMode, newWindow, logFile, profileStartup, timeout, clearWindowState, addToLastWindow, env}) ->
-    app.focus()
-
     if test
+      app.focus()
       @runTests({headless: true, devMode, @resourcePath, executedFrom, pathsToOpen, logFile, timeout, env})
     else if pathsToOpen.length > 0
       @openPaths({initialPaths, pathsToOpen, executedFrom, pidToKillWhenClosed, newWindow, devMode, safeMode, profileStartup, clearWindowState, addToLastWindow, env})
     else if urlsToOpen.length > 0
+      app.focus()
       @openUrl({urlToOpen, devMode, safeMode, env}) for urlToOpen in urlsToOpen
     else
       # Always open a editor window if this is the first instance of Atom.
@@ -511,8 +511,6 @@ class AtomApplication
       openedWindow.openLocations(locationsToOpen)
       if openedWindow.isMinimized()
         openedWindow.restore()
-      else
-        openedWindow.focus()
       openedWindow.replaceEnvironment(env)
     else
       if devMode
@@ -524,14 +522,14 @@ class AtomApplication
       resourcePath ?= @resourcePath
       windowDimensions ?= @getDimensionsForNewWindow()
       openedWindow = new AtomWindow(this, @fileRecoveryService, {initialPaths, locationsToOpen, windowInitializationScript, resourcePath, devMode, safeMode, windowDimensions, profileStartup, clearWindowState, env})
-      openedWindow.focus()
 
     if pidToKillWhenClosed?
       @pidsToOpenWindows[pidToKillWhenClosed] = openedWindow
+      openedWindow.browserWindow.once 'closed', =>
+        @killProcessForWindow(openedWindow)
 
-    openedWindow.browserWindow.once 'closed', =>
-      @killProcessForWindow(openedWindow)
-
+    app.focus()
+    openedWindow.focus()
     openedWindow
 
   # Kill all processes associated with opened windows.
