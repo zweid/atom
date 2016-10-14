@@ -52,7 +52,7 @@ module.exports = function (packagedAppPath, codeSign) {
         if (nupkgPath.includes(CONFIG.appMetadata.version)) {
           console.log(`Extracting signed executables from ${nupkgPath} for use in portable zip`)
           var atomOutPath = path.join(path.dirname(packagedAppPath), 'Atom')
-          spawnSync('7z.exe', ['e', nupkgPath, 'lib\\net45\\*.exe', '-aoa'], {cwd: atomOutPath})
+          spawnSync('7z.exe', ['e', nupkgPath, 'lib\\net45\\*.exe', '-o${atomOutPath}', '-aoa'], {cwd: atomOutPath})
           spawnSync(process.env.COMSPEC, ['/c', `move /y ${path.join(atomOutPath, 'squirrel.exe')} ${path.join(atomOutPath, 'update.exe')}`])
           return
         }
